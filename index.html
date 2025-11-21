@@ -1,0 +1,960 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ql.png</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: "PingFang SC", "Microsoft YaHei", sans-serif;
+        }
+        
+        body {
+            background-color: #0a0a0a;
+            color: #e0e0e0;
+            min-height: 100vh;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background-image: 
+                radial-gradient(circle at 20% 30%, rgba(255, 51, 102, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 80% 70%, rgba(255, 153, 51, 0.1) 0%, transparent 50%),
+                radial-gradient(circle at 40% 80%, rgba(51, 153, 255, 0.1) 0%, transparent 50%);
+            position: relative;
+            overflow-x: hidden;
+        }
+        
+        .container {
+            width: 100%;
+            max-width: 400px;
+            background-color: rgba(26, 26, 26, 0.9);
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            overflow: hidden;
+            border: 1px solid #333;
+            position: relative;
+            z-index: 1;
+        }
+        
+        /* 灵动岛样式 */
+        .dynamic-island {
+            position: fixed;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 150px;
+            height: 40px;
+            background-color: rgba(0, 0, 0, 0.8);
+            border-radius: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            overflow: hidden;
+            box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3);
+        }
+        
+        .dynamic-island.expanded {
+            width: 300px;
+            height: 60px;
+        }
+        
+        .island-content {
+            padding: 0 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            height: 100%;
+            transition: opacity 0.3s;
+        }
+        
+        .island-icon {
+            margin-right: 8px;
+            font-size: 16px;
+        }
+        
+        .island-text {
+            font-size: 14px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+        
+        .island-progress {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #ff3366, #ff9933);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+        
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            border-bottom: 1px solid #2a2a2a;
+            background-color: rgba(20, 20, 20, 0.8);
+        }
+        
+        .url-info {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .url-info a {
+            color: #ff3366;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+        
+        .url-info a:hover {
+            color: #ff6699;
+            text-decoration: underline;
+        }
+        
+        .profile {
+            display: flex;
+            align-items: center;
+        }
+        
+        .avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff3366, #ff9933);
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 20px;
+            overflow: hidden;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+        
+        .avatar:hover {
+            transform: scale(1.05);
+        }
+        
+        .profile-info {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .username {
+            font-weight: bold;
+            color: #fff;
+        }
+        
+        .user-id {
+            font-size: 12px;
+            color: #888;
+        }
+        
+        .server-info {
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: rgba(30, 30, 30, 0.8);
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+        
+        .server-info:hover {
+            background-color: rgba(40, 40, 40, 0.8);
+        }
+        
+        .server-label {
+            font-size: 16px;
+            color: #e0e0e0;
+        }
+        
+        .ping {
+            background-color: #2a2a2a;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 14px;
+            color: #4CAF50;
+            transition: all 0.3s;
+        }
+        
+        .ping.warning {
+            color: #FFC107;
+        }
+        
+        .ping.danger {
+            color: #F44336;
+        }
+        
+        .ping:hover {
+            background-color: #3a3a3a;
+        }
+        
+        .main-content {
+            padding: 20px;
+            text-align: center;
+        }
+        
+        .title {
+            font-size: 28px;
+            font-weight: bold;
+            margin-bottom: 5px;
+            background: linear-gradient(90deg, #ff3366, #ff9933);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            cursor: default;
+        }
+        
+        .date {
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 25px;
+            cursor: default;
+        }
+        
+        .buttons {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin-bottom: 30px;
+            justify-content: center;
+        }
+        
+        .btn {
+            flex: 1;
+            min-width: 80px;
+            padding: 12px 0;
+            border: none;
+            border-radius: 25px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+        
+        .btn::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 5px;
+            height: 5px;
+            background: rgba(255, 255, 255, 0.5);
+            opacity: 0;
+            border-radius: 100%;
+            transform: scale(1, 1) translate(-50%);
+            transform-origin: 50% 50%;
+        }
+        
+        .btn:focus:not(:active)::after {
+            animation: ripple 1s ease-out;
+        }
+        
+        @keyframes ripple {
+            0% {
+                transform: scale(0, 0);
+                opacity: 0.5;
+            }
+            100% {
+                transform: scale(20, 20);
+                opacity: 0;
+            }
+        }
+        
+        .btn:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        
+        .btn:active {
+            transform: translateY(-1px);
+        }
+        
+        .btn-file {
+            background: linear-gradient(90deg, #ff3366, #ff9933);
+            color: white;
+        }
+        
+        .btn-install {
+            background: linear-gradient(90deg, #4CAF50, #8BC34A);
+            color: white;
+        }
+        
+        .btn-half {
+            background: linear-gradient(90deg, #2196F3, #03A9F4);
+            color: white;
+        }
+        
+        .btn-full {
+            background: linear-gradient(90deg, #9C27B0, #E91E63);
+            color: white;
+        }
+        
+        .btn.active {
+            box-shadow: 0 0 0 2px white, 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+        
+        .messages {
+            text-align: left;
+            margin-bottom: 25px;
+        }
+        
+        .message {
+            font-size: 16px;
+            margin-bottom: 15px;
+            line-height: 1.5;
+            padding-left: 20px;
+            position: relative;
+            cursor: default;
+            transition: color 0.3s;
+        }
+        
+        .message:hover {
+            color: #fff;
+        }
+        
+        .message:before {
+            content: "•";
+            color: #ff3366;
+            position: absolute;
+            left: 0;
+        }
+        
+        .tips {
+            background-color: rgba(30, 30, 30, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+        }
+        
+        .tip {
+            font-size: 14px;
+            margin-bottom: 10px;
+            color: #aaa;
+            cursor: default;
+            transition: color 0.3s;
+            position: relative;
+            padding-left: 15px;
+        }
+        
+        .tip:hover {
+            color: #fff;
+        }
+        
+        .tip:before {
+            content: "💡";
+            position: absolute;
+            left: 0;
+        }
+        
+        .tip:last-child {
+            margin-bottom: 0;
+        }
+        
+        .footer {
+            padding: 15px 20px;
+            border-top: 1px solid #2a2a2a;
+            text-align: center;
+            background-color: rgba(20, 20, 20, 0.8);
+        }
+        
+        .copyright {
+            font-size: 12px;
+            color: #888;
+            margin-bottom: 10px;
+            cursor: default;
+        }
+        
+        .status {
+            display: inline-block;
+            background-color: rgba(76, 175, 80, 0.2);
+            color: #4CAF50;
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 14px;
+            border: 1px solid #4CAF50;
+            transition: all 0.3s;
+            cursor: pointer;
+        }
+        
+        .status:hover {
+            background-color: rgba(76, 175, 80, 0.3);
+        }
+        
+        .status.off {
+            background-color: rgba(244, 67, 54, 0.2);
+            color: #f44336;
+            border: 1px solid #f44336;
+        }
+        
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 15px 20px;
+            background-color: rgba(40, 40, 40, 0.9);
+            border-radius: 8px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+            transform: translateX(150%);
+            transition: transform 0.4s;
+            z-index: 1000;
+            max-width: 300px;
+            border-left: 4px solid #ff3366;
+        }
+        
+        .notification.show {
+            transform: translateX(0);
+        }
+        
+        .notification-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #ff3366;
+        }
+        
+        .server-selector {
+            position: absolute;
+            background-color: rgba(30, 30, 30, 0.95);
+            border-radius: 8px;
+            padding: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.5);
+            z-index: 100;
+            display: none;
+            width: 200px;
+            border: 1px solid #444;
+        }
+        
+        .server-option {
+            padding: 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+        }
+        
+        .server-option:hover {
+            background-color: rgba(255, 51, 102, 0.2);
+        }
+        
+        .server-option.active {
+            background-color: rgba(255, 51, 102, 0.3);
+            color: #ff3366;
+        }
+        
+        .tooltip {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 12px;
+            z-index: 1000;
+            white-space: nowrap;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+        
+        /* 新增随机一言样式 */
+        .random-quote {
+            background-color: rgba(30, 30, 30, 0.8);
+            padding: 15px;
+            border-radius: 10px;
+            margin: 20px;
+            text-align: center;
+            border-left: 4px solid #ff3366;
+        }
+        
+        .quote-text {
+            font-size: 16px;
+            color: #e0e0e0;
+            font-style: italic;
+            margin-bottom: 5px;
+        }
+        
+        .quote-author {
+            font-size: 14px;
+            color: #888;
+        }
+        
+        .refresh-quote {
+            background: none;
+            border: none;
+            color: #ff3366;
+            cursor: pointer;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+    </style>
+</head>
+<body>
+    <!-- 灵动岛 -->
+    <div class="dynamic-island" id="dynamicIsland">
+        <div class="island-content">
+            <span class="island-icon">🔒</span>
+            <span class="island-text">欢迎访问此网站</span>
+        </div>
+        <div class="island-progress" id="islandProgress"></div>
+    </div>
+    
+    <div class="container">
+        <div class="header">
+            <div class="url-info">凄凉 - <a href="https://t.me/qiliangnb">https://t.me/qiliangnb</a></div>
+        </div>
+        
+        <div class="header" style="border-top: none;">
+            <div class="profile">
+                <div class="avatar" id="avatar">🐔</div>
+                <div class="profile-info">
+                    <div class="username">凄凉</div>
+                    <div class="user-id">@qiliangnb</div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="server-info" id="serverInfo">
+            <div class="server-label">选择服务器</div>
+            <div class="ping">29ms</div>
+            <div class="server-selector" id="serverSelector">
+                <div class="server-option active" data-ping="random">香港服务器 (推荐)</div>
+                <div class="server-option" data-ping="random">新加坡服务器</div>
+                <div class="server-option" data-ping="random">日本服务器</div>
+                <div class="server-option" data-ping="random">美国服务器</div>
+            </div>
+        </div>
+        
+        <div class="main-content">
+            <div class="title">凄凉</div>
+            <div class="time">2025年11月01日 18:21:06</div>
+<script>
+setInterval(() => {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = String(now.getMonth() + 1).padStart(2, '0');
+  const day = String(now.getDate()).padStart(2, '0');
+  const hours = String(now.getHours()).padStart(2, '0');
+  const minutes = String(now.getMinutes()).padStart(2, '0');
+  const seconds = String(now.getSeconds()).padStart(2, '0');
+  document.querySelector('.time').innerText = `${year}年${month}月${day}日 ${hours}:${minutes}:${seconds}`;
+}, 1000);
+</script>
+
+            
+            <div class="buttons">
+                <button class="btn btn-file" id="btnFile">文件</button>
+                <button class="btn btn-install" id="btnInstall">直装</button>
+                <button class="btn btn-half" id="btnHalf">半火</button>
+                <button class="btn btn-full" id="btnFull">全火</button>
+            </div>
+            
+            <!-- 新增随机一言模块 -->
+            <div class="random-quote">
+        
+                <div class="quote-author" id="quoteAuthor"></div>
+                <button class="refresh-quote" id="refreshQuote">换一句</button>
+            </div>
+            
+   <div class="messages" style="display: flex; flex-direction: column; align-items: center; padding: 15px;">
+    <!-- 顶部：加入我们标题（独立字体+颜色） -->
+    <h3 style="margin: 0 0 15px 0; color: #2D81FF; /* 蓝色系，醒目且不刺眼 */ font-size: 20px; font-family: 'Microsoft YaHei', 'Heiti SC', sans-serif; /* 主流中文字体，适配多设备 */ font-weight: 600;">加入我们</h3>
+    
+    <!-- 图标容器：横向排列 -->
+    <div style="display: flex; gap: 20px; align-items: center;">
+        <!-- 左侧：Telegram图标 -->
+        <a href="https://t.me/qiliangnb" target="_blank" style="text-decoration: none;">
+            <img src="https://mpimg.cn/view.php/b91c9d5f8f7a0b8dce209552ad6d11a8.png" alt="Telegram" style="width: 60px; height: 60px; border-radius: 50%; cursor: pointer;">
+        </a>
+
+        <!-- 右侧：QQ图标 -->
+        <a href="https://qm.qq.com/q/WywbIGxqA8" target="_blank" style="text-decoration: none;">
+            <img src="https://mpimg.cn/view.php/ad80dcae74d36e99180873e26d701132.png" alt="QQ" style="width: 60px; height: 60px; border-radius: 50%; cursor: pointer;">
+        </a>
+    </div>
+</div>
+
+            
+
+        
+        <div class="footer">
+            <div class="copyright">©2025凄凉版权所有</div>
+            <div class="status" id="statusToggle">凄凉</div>
+        </div>
+    </div>
+    
+    <div class="notification" id="notification">
+        <div class="notification-title" id="notifTitle">通知</div>
+        <div class="notification-content" id="notifContent">操作成功</div>
+    </div>
+    
+    <div class="tooltip" id="tooltip"></div>
+
+    <script>
+        // 随机一言数据
+        const quotes = [
+            { text: "代码如诗，简洁即美", author: "程序员箴言" },
+            { text: "技术改变世界，代码创造未来", author: "科技格言" },
+            { text: "学无止境，码不停蹄", author: "开发者心声" },
+            { text: "优雅的代码是最好的文档", author: "编程哲学" },
+            { text: "简单是可靠的先决条件", author: "Edsger W. Dijkstra" },
+            { text: "Talk is cheap. Show me the code.", author: "Linus Torvalds" },
+            { text: "代码是写给人看的，顺便能在机器上运行", author: "Donald Knuth" },
+            { text: "完美不在于无以复加，而在于无可删减", author: "Antoine de Saint-Exupery" },
+            { text: "安全不是功能，而是基础", author: "网络安全箴言" },
+            { text: "最好的错误处理就是预防错误", author: "编程最佳实践" }
+        ];
+        
+        // 灵动岛消息队列
+        let islandMessageQueue = [];
+        let isIslandShowing = false;
+        
+        // 显示灵动岛消息
+        function showIslandMessage(icon, message, duration = 3000, showProgress = false) {
+            islandMessageQueue.push({icon, message, duration, showProgress});
+            
+            if (!isIslandShowing) {
+                processIslandQueue();
+            }
+        }
+        
+        // 处理灵动岛消息队列
+        function processIslandQueue() {
+            if (islandMessageQueue.length === 0) {
+                isIslandShowing = false;
+                return;
+            }
+            
+            isIslandShowing = true;
+            const message = islandMessageQueue.shift();
+            const island = document.getElementById('dynamicIsland');
+            const islandContent = island.querySelector('.island-content');
+            const islandProgress = document.getElementById('islandProgress');
+            
+            // 更新内容
+            islandContent.innerHTML = `<span class="island-icon">${message.icon}</span><span class="island-text">${message.message}</span>`;
+            
+            // 展开灵动岛
+            island.classList.add('expanded');
+            
+            // 显示进度条（如果需要）
+            if (message.showProgress) {
+                islandProgress.style.width = '0%';
+                let progress = 0;
+                const progressInterval = setInterval(() => {
+                    progress += 100 / (message.duration / 100);
+                    islandProgress.style.width = `${progress}%`;
+                    
+                    if (progress >= 100) {
+                        clearInterval(progressInterval);
+                    }
+                }, 100);
+            } else {
+                islandProgress.style.width = '0%';
+            }
+            
+            // 定时隐藏
+            setTimeout(() => {
+                island.classList.remove('expanded');
+                
+                // 短暂延迟后处理下一条消息
+                setTimeout(() => {
+                    processIslandQueue();
+                }, 500);
+            }, message.duration);
+        }
+        
+        // 显示通知
+        function showNotification(title, content, duration = 3000) {
+            const notif = document.getElementById('notification');
+            const notifTitle = document.getElementById('notifTitle');
+            const notifContent = document.getElementById('notifContent');
+            
+            notifTitle.textContent = title;
+            notifContent.textContent = content;
+            notif.classList.add('show');
+            
+            setTimeout(() => {
+                notif.classList.remove('show');
+            }, duration);
+        }
+        
+        // 显示工具提示
+        function showTooltip(text, x, y) {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.textContent = text;
+            tooltip.style.left = x + 'px';
+            tooltip.style.top = y + 'px';
+            tooltip.style.opacity = 1;
+        }
+        
+        function hideTooltip() {
+            const tooltip = document.getElementById('tooltip');
+            tooltip.style.opacity = 0;
+        }
+        
+        // 显示随机一言
+        function showRandomQuote() {
+            const randomIndex = Math.floor(Math.random() * quotes.length);
+            const quote = quotes[randomIndex];
+            document.getElementById('quoteText').textContent = `"${quote.text}"`;
+            document.getElementById('quoteAuthor').textContent = `—— ${quote.author}`;
+        }
+        
+        // 生成随机延迟 (20-150ms)
+        function getRandomPing() {
+            return Math.floor(Math.random() * 130) + 20;
+        }
+        
+        // 更新服务器延迟显示
+        function updatePingDisplay() {
+            const ping = getRandomPing();
+            const pingElement = document.querySelector('.ping');
+            pingElement.textContent = ping + 'ms';
+            
+            // 根据延迟显示不同颜色
+            if (ping < 50) {
+                pingElement.className = 'ping';
+            } else if (ping < 100) {
+                pingElement.className = 'ping warning';
+            } else {
+                pingElement.className = 'ping danger';
+            }
+            
+            // 在灵动岛显示延迟信息
+            showIslandMessage('🌐', `当前延迟: ${ping}ms`, 2000);
+        }
+        
+        // 按钮点击效果和功能
+        document.querySelectorAll('.btn').forEach(button => {
+            button.addEventListener('click', function() {
+                // 移除其他按钮的激活状态
+                document.querySelectorAll('.btn').forEach(btn => {
+                    btn.classList.remove('active');
+                });
+                
+                // 添加当前按钮激活状态
+                this.classList.add('active');
+                
+                // 添加点击动画
+                this.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    this.style.transform = 'scale(1)';
+                }, 150);
+                
+                // 根据按钮文本执行不同功能
+                const buttonText = this.textContent;
+                let title = '';
+                let content = '';
+                let islandIcon = '';
+                let islandMessage = '';
+                
+                <script>
+    // 灵动岛消息队列等原有逻辑保持不变...
+
+    // 按钮点击事件处理（新增跳转百度逻辑）
+    function handleButtonClick(buttonText) {
+        let title, content, islandIcon, islandMessage, baiduUrl = 'https://www.baidu.com';
+        
+        switch(buttonText) {
+            case '下载文件':
+                title = '下载文件';
+                content = '文件正在加载中，请稍候...';
+                islandIcon = '📁';
+                islandMessage = '下载文件功能加载中...';
+                window.location.href = https://www.123865.com/s/3V3nUE-C9cE3; 
+                break;
+            case '反馈':
+                title = '问题反馈';
+                content = '反馈准备中，请确保设备已授权...';
+                islandIcon = '📲';
+                islandMessage = '反馈准备中';
+                window.location.href = baiduUrl; // 跳转到百度官网
+                break;
+            case '半火':
+                title = '半火模式';
+                content = '半火模式已激活，建议适度使用';
+                islandIcon = '🔥';
+                islandMessage = '半火模式已激活';
+                window.location.href = baiduUrl; // 跳转到百度官网
+                break;
+            case '全火':
+                title = '全火模式';
+                content = '全火模式已激活，请注意安全使用';
+                islandIcon = '🔥';
+                islandMessage = '全火模式已激活';
+                window.location.href = baiduUrl; // 跳转到百度官网
+                break;
+        }
+
+        // 调用灵动岛显示消息（需确保原有showIslandMessage函数可正常执行）
+        showIslandMessage(islandIcon, islandMessage, 3000, true);
+    }
+</script>
+
+                
+                if(title) {
+                    showNotification(title, content);
+                    showIslandMessage(islandIcon, islandMessage, 2000, true);
+                }
+            });
+            
+            // 添加悬停提示
+            button.addEventListener('mouseenter', function(e) {
+                const rect = this.getBoundingClientRect();
+                showTooltip(`点击激活对应的功能`, rect.left + rect.width/2, rect.top - 10);
+            });
+            
+            button.addEventListener('mouseleave', hideTooltip);
+        });
+        
+        // 服务器选择功能
+        const serverInfo = document.getElementById('serverInfo');
+        const serverSelector = document.getElementById('serverSelector');
+        
+        serverInfo.addEventListener('click', function(e) {
+            const rect = this.getBoundingClientRect();
+            serverSelector.style.display = 'block';
+            serverSelector.style.top = (rect.bottom + 5) + 'px';
+            serverSelector.style.left = (rect.left) + 'px';
+            
+            e.stopPropagation();
+        });
+        
+        document.addEventListener('click', function() {
+            serverSelector.style.display = 'none';
+        });
+        
+        serverSelector.addEventListener('click', function(e) {
+            e.stopPropagation();
+        });
+        
+        document.querySelectorAll('.server-option').forEach(option => {
+            option.addEventListener('click', function() {
+                document.querySelectorAll('.server-option').forEach(opt => {
+                    opt.classList.remove('active');
+                });
+                
+                this.classList.add('active');
+                updatePingDisplay();
+                
+                const serverName = this.textContent.split(' ')[0];
+                showIslandMessage('🔁', `已切换到${serverName}服务器`, 2000);
+                
+                serverSelector.style.display = 'none';
+            });
+        });
+        
+        // 状态切换功能
+        const statusToggle = document.getElementById('statusToggle');
+        let statusOn = true;
+        
+        statusToggle.addEventListener('click', function() {
+            statusOn = !statusOn;
+            
+            if(statusOn) {
+                this.textContent = '服务器[已开启]';
+                this.classList.remove('off');
+                showNotification('凄凉', '加密');
+                showIslandMessage('🔒', '防封系统已开启', 2000);
+            } else {
+                this.textContent = '服务器[已关闭]';
+                this.classList.add('off');
+                showNotification('凄凉', '牛逼');
+                showIslandMessage('凄', '凉', 2000);
+            }
+        });
+        
+        // 头像点击效果
+        document.getElementById('avatar').addEventListener('click', function() {
+            showNotification('个人信息', '凄凉加密 - 专业级防护');
+            showIslandMessage('🐔', '凄凉', 2000);
+        });
+        
+        // 链接点击效果
+        document.querySelector('.url-info a').addEventListener('click', function(e) {
+            e.preventDefault();
+            showNotification('Telegram', '即将打开Telegram官方频道');
+            showIslandMessage('📢', '打开Telegram频道', 1500);
+            setTimeout(() => {
+                window.open('https://t.me/', '_blank');
+            }, 1000);
+        });
+        
+        // 提示信息悬停效果
+        document.querySelectorAll('.tip').forEach(tip => {
+            tip.addEventListener('mouseenter', function(e) {
+                const rect = this.getBoundingClientRect();
+                showTooltip('重要提示，请务必遵守', rect.left, rect.top - 5);
+            });
+            
+            tip.addEventListener('mouseleave', hideTooltip);
+        });
+        
+        // 刷新一言按钮
+        document.getElementById('refreshQuote').addEventListener('click', function() {
+            showRandomQuote();
+            showIslandMessage('💬', '已刷新随机一言', 1500);
+        });
+        
+        // 更新当前时间
+        function updateTime() {
+            const now = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.querySelector('.date').textContent = now.toLocaleDateString('zh-CN', options);
+        }
+        
+        // 页面加载时初始化
+        window.addEventListener('load', function() {
+            // 显示欢迎消息
+            setTimeout(() => {
+                showIslandMessage('👋', '欢迎打开凄凉导航', 2000);
+            }, 1000);
+            
+            // 初始化随机一言
+            showRandomQuote();
+            
+            // 初始化随机延迟
+            updatePingDisplay();
+            
+            // 更新时间
+            updateTime();
+            
+            // 每30秒更新一次延迟
+            setInterval(updatePingDisplay, 30000);
+        });
+        
+        // 添加键盘快捷键
+        document.addEventListener('keydown', function(e) {
+            if(e.ctrlKey || e.metaKey) {
+                switch(e.key) {
+                    case '1':
+                        document.getElementById('btnFile').click();
+                        break;
+                    case '2':
+                        document.getElementById('btnInstall').click();
+                        break;
+                    case '3':
+                        document.getElementById('btnHalf').click();
+                        break;
+                    case '4':
+                        document.getElementById('btnFull').click();
+                        break;
+                }
+            }
+        });
+    </script>
+</body>
+</html>
