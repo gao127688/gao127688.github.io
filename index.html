@@ -48,6 +48,7 @@
         .avatar-wrapper {
             display: inline-block;
             margin-bottom: 20px;
+            position: relative;
         }
         .avatar { 
             width: 120px; 
@@ -57,11 +58,32 @@
             border: 3px solid rgba(255,255,255,0.2);
             box-shadow: 0 0 20px 5px rgba(72, 187, 255, 0.4);
             animation: floatUpDown 3s ease-in-out infinite;
+            position: relative;
+            z-index: 2;
+        }
+        /* 彩色光环效果 */
+        .color-halo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 140px;
+            height: 140px;
+            border-radius: 50%;
+            background: conic-gradient(from 0deg, #ff2d55, #5ac8fa, #34c759, #ffcc00, #ff2d55);
+            animation: rotateHalo 4s linear infinite;
+            z-index: 1;
+            filter: blur(8px);
+            opacity: 0.7;
         }
         @keyframes floatUpDown {
             0% { transform: translateY(0); }
             50% { transform: translateY(-12px); }
             100% { transform: translateY(0); }
+        }
+        @keyframes rotateHalo {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
         }
         /* 标题文字发光 */
         .home-title { 
@@ -164,6 +186,19 @@
             font-size: 13px; 
             color: #c0c4cc; 
             line-height: 1.7; 
+            margin-bottom: 10px;
+        }
+        .learn-more {
+            color: #5ac8fa;
+            text-decoration: none;
+            font-weight: bold;
+            transition: all 0.3s ease;
+            display: inline-block;
+            margin-top: 5px;
+        }
+        .learn-more:hover {
+            text-shadow: 0 0 8px #5ac8fa;
+            transform: translateY(-2px);
         }
         /* 点击关键词特效 */
         .keyword { 
@@ -276,6 +311,7 @@ var _hmt = _hmt || [];
         <div class="page" id="home">
             <div class="home-header">
                 <div class="avatar-wrapper">
+                    <div class="color-halo"></div>
                     <img src="https://mpimg.cn/view.php/0d168dc792c3cd800c1c6d18ae1c85d1.png" alt="个人头像" class="avatar">
                 </div>
                 <h1 class="home-title">凄凉的个人导航</h1>
@@ -313,6 +349,8 @@ var _hmt = _hmt || [];
                     建立时间：2025年11月16日<br>
                     维护者：凄凉
                 </p>
+                <p class="profile-desc">...</p>
+                <a href="https://share.htmlput.com/p/s1fpazijcc?lang=zh" class="learn-more">了解更多</a>
             </div>
         </div>
     </div>
@@ -330,7 +368,7 @@ var _hmt = _hmt || [];
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
 
-        // 每日一言核心修复：使用接口正确字段“content”（原错误用“hitokoto”）
+        // 每日一言核心修复：使用接口正确字段"content"（原错误用"hitokoto"）
         async function fetchHitokoto() {
             const contentEl = document.querySelector('.hitokoto-content');
             const authorEl = document.querySelector('.hitokoto-author');
@@ -338,18 +376,18 @@ var _hmt = _hmt || [];
                 // 请求指定接口
                 const res = await fetch('https://api.jsonbin.io/v3/b/69210abed0ea881f40f7bf17');
                 const data = await res.json();
-                const quoteList = data.record; // 接口返回的语录数组在“record”中
+                const quoteList = data.record; // 接口返回的语录数组在"record"中
                 
                 // 随机抽取一条语录
                 const randomQuote = quoteList[Math.floor(Math.random() * quoteList.length)];
-                let content = randomQuote.content || '暂无合适语录'; // 关键修复：用“content”字段
+                let content = randomQuote.content || '暂无合适语录'; // 关键修复：用"content"字段
                 
                 // 去除末尾标点（如。、.、?、!）
                 content = content.replace(/[。.?!]$/, '');
 
                 // 渲染到页面
                 contentEl.textContent = content;
-                authorEl.textContent = `—— ${randomQuote.author || '未知作者'}`; // 作者字段“author”匹配接口
+                authorEl.textContent = `—— ${randomQuote.author || '未知作者'}`; // 作者字段"author"匹配接口
             } catch (err) {
                 // 网络错误时显示默认内容
                 contentEl.textContent = '人生没有白走的路，每一步都算数。';
@@ -437,3 +475,4 @@ var _hmt = _hmt || [];
     </script>
 </body>
 </html>
+
