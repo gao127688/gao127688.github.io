@@ -90,21 +90,19 @@
             overflow: hidden;
             margin: 12px 0;
             box-shadow: 0 0 8px #ffcc00;
-            display: flex; /* 用于排列图标和滚动内容 */
+            display: flex; 
             align-items: center;
         }
-        /* 通知栏左侧小图标（与框大小一致） */
         .notice-icon {
-            width: 35px; /* 与通知栏高度一致 */
+            width: 35px; 
             height: 35px;
             object-fit: contain;
             padding: 2px;
-            flex-shrink: 0; /* 固定宽度不收缩 */
+            flex-shrink: 0;
         }
         .scroll-notice-content {
             display: inline-block;
             white-space: nowrap;
-            /* 从右往左循环滚动 */
             animation: scrollNotice 12s linear infinite;
             font-weight: bold;
             color: #ffcc00; 
@@ -116,28 +114,39 @@
             0% { transform: translateX(100%); }
             100% { transform: translateX(-100%); }
         }
-        /* 导航按钮 */
+        /* 导航框样式 */
+        .nav-box {
+            background: rgba(255,255,255,0.08);
+            border-radius: 15px;
+            padding: 25px;
+            margin: 25px 0;
+            text-align: center;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
         .nav-group { 
             display: flex; 
-            gap: 10px; 
+            gap: 15px; 
             justify-content: center; 
-            margin: 25px 0; 
             flex-wrap: wrap;
         }
         .nav-btn { 
-            padding: 10px 20px; 
-            background: rgba(255,255,255,0.08); 
+            padding: 12px 24px; 
+            background: rgba(255,255,255,0.1); 
             color: #fff; 
             border: none; 
             border-radius: 10px; 
             text-decoration: none; 
-            font-size: 15px; 
+            font-size: 16px; 
             transition: all 0.3s ease;
         }
         .nav-btn:hover {
             background: rgba(72, 187, 255, 0.2);
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(72, 187, 255, 0.3);
+        }
+        .nav-btn:active {
+            transform: scale(0.95);
+            transition: transform 0.1s ease;
         }
         /* 关于档案 */
         .profile { 
@@ -170,6 +179,73 @@
             0% { opacity: 1; transform: translateY(0) scale(1); }
             100% { opacity: 0; transform: translateY(-50px) scale(1.1); }
         }
+        /* 每日一言样式（核心修复：适配接口字段） */
+        .hitokoto {
+            background: rgba(255,255,255,0.05);
+            border-radius: 12px;
+            padding: 18px;
+            margin: 20px 0;
+            text-align: center;
+            border-left: 3px solid #5ac8fa;
+            transition: all 0.3s ease;
+        }
+        .hitokoto:hover {
+            box-shadow: 0 0 15px rgba(72, 187, 255, 0.2);
+        }
+        .hitokoto-content {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #e0e0e0;
+            margin-bottom: 10px;
+        }
+        .hitokoto-author {
+            font-size: 12px;
+            color: #909399;
+            text-align: right;
+            margin-bottom: 10px;
+        }
+        .refresh-btn {
+            padding: 6px 12px;
+            background: rgba(72, 187, 255, 0.2);
+            border: none;
+            border-radius: 6px;
+            color: #fff;
+            font-size: 12px;
+            cursor: pointer;
+            transition: background 0.3s ease;
+        }
+        .refresh-btn:hover {
+            background: rgba(72, 187, 255, 0.4);
+        }
+        /* 返回顶部按钮 */
+        .back-to-top {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            background: rgba(72, 187, 255, 0.2);
+            border: none;
+            color: #fff;
+            font-size: 18px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            opacity: 0;
+            pointer-events: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 999;
+        }
+        .back-to-top.active {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        .back-to-top:hover {
+            background: rgba(72, 187, 255, 0.4);
+            transform: translateY(-3px);
+        }
     </style>
 
 <!-- 百度统计 -->
@@ -189,7 +265,6 @@ var _hmt = _hmt || [];
   window.dataLayer = window.dataLayer || [];
   function gtag(){dataLayer.push(arguments);}
   gtag('js', new Date());
-
   gtag('config', 'G-N13ZH72VV9');
 </script>
 </head>
@@ -206,20 +281,29 @@ var _hmt = _hmt || [];
                 <h1 class="home-title">凄凉的个人导航</h1>
                 <div class="run-time" id="runTime">此网站已安全运行：0年0天0时0分0秒</div>
                 
-                <!-- 通知栏（左侧小图标+从右往左滚动） -->
+                <!-- 通知栏 -->
                 <div class="scroll-notice">
-                    <!-- 【小图标链接填写处】将下面src引号内的内容替换为你的图标链接即可 -->
                     <img src="https://mpimg.cn/view.php/8b46979cfcddd86932fef6a5c1f88aac.jpg" alt="通知图标" class="notice-icon">
                     <div class="scroll-notice-content">
                         防止失联和查收重要通知，请亲们务必收藏此发布页！~
                     </div>
                 </div>
+
+                <!-- 每日一言（修复字段匹配问题） -->
+                <div class="hitokoto" id="hitokoto">
+                    <div class="hitokoto-content">加载中...</div>
+                    <div class="hitokoto-author">—— 加载中 ——</div>
+                    <button class="refresh-btn" id="refreshHitokoto">刷新语句</button>
+                </div>
             </div>
 
-            <div class="nav-group">
-                <a href="https://share.htmlput.com/p/hyqy2pkb8w?lang=zh" target="_blank" class="nav-btn">音乐</a>
-                <a href="https://www.123pan.com/s/3V3nTd-C9cE3" target="_blank" class="nav-btn">下载加密</a>
-                <a href="https://share.htmlput.com/p/al0bnw1gvk?lang=zh" target="_blank" class="nav-btn">本人TG</a>
+            <!-- 导航框 -->
+            <div class="nav-box">
+                <div class="nav-group">
+                    <a href="https://share.htmlput.com/p/hyqy2pkb8w?lang=zh" target="_blank" class="nav-btn">音乐</a>
+                    <a href="https://www.123pan.com/s/3V3nTd-C9cE3" target="_blank" class="nav-btn">下载加密</a>
+                    <a href="https://share.htmlput.com/p/al0bnw1gvk?lang=zh" target="_blank" class="nav-btn">本人TG</a>
+                </div>
             </div>
 
             <div class="profile">
@@ -233,8 +317,52 @@ var _hmt = _hmt || [];
         </div>
     </div>
 
+    <!-- 返回顶部按钮 -->
+    <button class="back-to-top" id="backToTop">↑</button>
+
     <script>
-        // 1. 背景粒子特效
+        // 返回顶部按钮功能
+        const backToTopBtn = document.getElementById('backToTop');
+        window.addEventListener('scroll', () => {
+            backToTopBtn.classList.toggle('active', window.scrollY > 300);
+        });
+        backToTopBtn.addEventListener('click', () => {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+
+        // 每日一言核心修复：使用接口正确字段“content”（原错误用“hitokoto”）
+        async function fetchHitokoto() {
+            const contentEl = document.querySelector('.hitokoto-content');
+            const authorEl = document.querySelector('.hitokoto-author');
+            try {
+                // 请求指定接口
+                const res = await fetch('https://api.jsonbin.io/v3/b/69210abed0ea881f40f7bf17');
+                const data = await res.json();
+                const quoteList = data.record; // 接口返回的语录数组在“record”中
+                
+                // 随机抽取一条语录
+                const randomQuote = quoteList[Math.floor(Math.random() * quoteList.length)];
+                let content = randomQuote.content || '暂无合适语录'; // 关键修复：用“content”字段
+                
+                // 去除末尾标点（如。、.、?、!）
+                content = content.replace(/[。.?!]$/, '');
+
+                // 渲染到页面
+                contentEl.textContent = content;
+                authorEl.textContent = `—— ${randomQuote.author || '未知作者'}`; // 作者字段“author”匹配接口
+            } catch (err) {
+                // 网络错误时显示默认内容
+                contentEl.textContent = '人生没有白走的路，每一步都算数。';
+                authorEl.textContent = '—— 未知';
+                console.log('每日一言获取失败：', err);
+            }
+        }
+        // 页面加载时初始化
+        fetchHitokoto();
+        // 点击刷新按钮重新获取
+        document.getElementById('refreshHitokoto').addEventListener('click', fetchHitokoto);
+
+        // 背景粒子特效
         (function createParticles() {
             const container = document.getElementById('bgParticles');
             const particleCount = 30;
@@ -263,37 +391,48 @@ var _hmt = _hmt || [];
             document.head.appendChild(style);
         })();
 
-        // 2. 运行时长计时器
+        // 运行时长计时器
         const startTime = new Date('2025-11-16 14:41:00').getTime();
         function updateRunTime() {
             const now = new Date().getTime();
             const diff = now - startTime;
             const years = Math.floor(diff / (1000 * 60 * 60 * 24 * 365));
-            const remainingAfterYears = diff % (1000 * 60 * 60 * 24 * 365);
-            const days = Math.floor(remainingAfterYears / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((remainingAfterYears % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-            const minutes = Math.floor((remainingAfterYears % (1000 * 60 * 60)) / (1000 * 60));
-            const seconds = Math.floor((remainingAfterYears % (1000 * 60)) / 1000);
+            const remaining = diff % (1000 * 60 * 60 * 24 * 365);
+            const days = Math.floor(remaining / (1000 * 60 * 60 * 24));
+            const hours = Math.floor((remaining % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+            const minutes = Math.floor((remaining % (1000 * 60 * 60)) / (1000 * 60));
+            const seconds = Math.floor((remaining % (1000 * 60)) / 1000);
             document.getElementById('runTime').innerText = 
                 `网站已安全运行：${years}年${days}天${hours}时${minutes}分${seconds}秒`;
         }
         updateRunTime();
         setInterval(updateRunTime, 1000);
 
-        // 3. 点击关键词特效
+        // 点击关键词特效
         const keywords = ['自由', '民主', '凄凉', '团结', '奋进', '政治', '富强', '文明', '和谐', '平等', '公正', '法治', '诚信', '友善', '爱国', '敬业'];
         const glowColors = ['#ff2d55', '#5ac8fa', '#34c759', '#ffcc00'];
         document.addEventListener('click', (e) => {
             const keyword = document.createElement('div');
-            const randomKey = keywords[Math.floor(Math.random() * keywords.length)];
-            const randomColor = glowColors[Math.floor(Math.random() * glowColors.length)];
+            const key = keywords[Math.floor(Math.random() * keywords.length)];
+            const color = glowColors[Math.floor(Math.random() * glowColors.length)];
             keyword.className = 'keyword';
-            keyword.textContent = randomKey;
-            keyword.style.color = randomColor;
+            keyword.textContent = key;
+            keyword.style.color = color;
             keyword.style.left = `${e.clientX}px`;
             keyword.style.top = `${e.clientY}px`;
             document.body.appendChild(keyword);
             setTimeout(() => keyword.remove(), 1500);
+        });
+
+        // 粒子背景鼠标跟随效果
+        const particles = document.querySelectorAll('#bgParticles div');
+        document.addEventListener('mousemove', (e) => {
+            const mouseX = e.clientX / window.innerWidth - 0.5;
+            const mouseY = e.clientY / window.innerHeight - 0.5;
+            particles.forEach(particle => {
+                const speed = particle.style.animationDuration.replace('s', '') * 0.1;
+                particle.style.transform = `translate(${mouseX * speed * 10}px, ${mouseY * speed * 10}px)`;
+            });
         });
     </script>
 </body>
